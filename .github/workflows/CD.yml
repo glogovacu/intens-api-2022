@@ -36,14 +36,15 @@ jobs:
     - name: Push Docker image
       run: docker push tutko/intents-api:1.0
 
-    - name: SSH to EC2 and deploy
-      env:
-        PRIVATE_KEY: ${{ secrets.EC2_KEY }}
-        USER_NAME: ${{ secrets.EC2_USER }}
-        HOSTNAME: ${{ secrets.EC2_HOST }}
-      run: |
-        echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-        ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} << 'EOF'
+    - name: AWS SSM Send-Command
+      uses: peterkimzz/aws-ssm-send-command@v1.1.1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+        instance-ids: ${{ secrets.AWS_INSTANCE_ID }}
+        working-directory: /home/ec2-user
+        command: |
           sudo docker stop $(sudo docker ps -q --filter ancestor=tutko/intents-api:1.0)
           sudo docker run -d -p 80:8080 -e PORT=8080 tutko/intents-api:1.0
-        EOF
+        comment: Docker deployment of tutko/intents-api
