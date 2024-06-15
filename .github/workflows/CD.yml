@@ -9,9 +9,6 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
-    env:
-      PORT: 8080
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -20,6 +17,12 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 8
+        
+    - name: Set Port
+      run: export PORT=8080
+      
+    - name: Verify Port
+      run: echo $PORT
 
     - name: Build with Maven
       run: mvn clean install
