@@ -18,10 +18,10 @@ jobs:
       with:
         java-version: 8
         
-    - name: Set Port
-      run: export PORT=8080
-      
-    - name: Verify Port
+    - name: Set environment variable
+      run: echo "PORT=8080" >> $GITHUB_ENV
+
+    - name: Verify environment variable
       run: echo $PORT
 
     - name: Build with Maven
